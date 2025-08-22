@@ -64,6 +64,7 @@ def news(query: str) -> str:
     """
     Fetches the top news headlines for a given search query.
     The query can be a keyword, topic, or person's name.
+    Make sure to print the URLS given!
     """
     
     try:
