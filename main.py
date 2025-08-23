@@ -16,7 +16,7 @@ load_dotenv()
 CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 NEWSAPI_API_KEY = os.getenv("NEWSAPI_API_KEY")
-# Use InMemorySaver to avoid the sqlite3 error
+
 
 
 model = init_chat_model("anthropic:claude-3-5-haiku-latest", anthropic_api_key=CLAUDE_API_KEY)
