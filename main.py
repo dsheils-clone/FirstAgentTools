@@ -3,7 +3,6 @@
 import operator
 from langchain.chat_models import init_chat_model
 from langchain_tavily import TavilySearch
-from langgraph.checkpoint.memory import MemorySaver # Switched to MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.agents import tool
@@ -18,7 +17,7 @@ CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 NEWSAPI_API_KEY = os.getenv("NEWSAPI_API_KEY")
 # Use InMemorySaver to avoid the sqlite3 error
-memory = MemorySaver()
+
 
 model = init_chat_model("anthropic:claude-3-5-haiku-latest", anthropic_api_key=CLAUDE_API_KEY)
 search = TavilySearch(max_results=2, description="A tool for searching the web for current, up-to-date information like weather, sports scores, or news.")
@@ -90,7 +89,7 @@ def news(query: str) -> str:
 def main():
     current_date = datetime.now().strftime("%A, %B %d, %Y")
     tools = [search, calculator, news]
-    agent_executor = create_react_agent(model, tools, checkpointer=memory)
+    agent_executor = create_react_agent(model, tools)
 
     config = {"configurable": {"thread_id": "my_chat_session"}}
     
