@@ -22,7 +22,7 @@ memory = MemorySaver()
 
 
 model = init_chat_model("anthropic:claude-3-5-haiku-latest", anthropic_api_key=CLAUDE_API_KEY)
-search = TavilySearch(max_results=2, description="A tool for searching the web for current, up-to-date information like weather, sports scores, or news.")
+search = TavilySearch(max_results=2, description="A general-purpose tool for searching the web for a wide variety of information, including weather, sports scores, facts, or any query that requires real-time data not covered by other specific tools.")
 newsapi = NewsApiClient(NEWSAPI_API_KEY)
 @tool
 def calculator(input_string):
@@ -65,14 +65,38 @@ def news(query: str) -> str:
     """
     Fetches the top news headlines for a given search query.
     The query can be a keyword, topic, or person's name.
-    Make sure to print the URLS given!
+    You must print each URL used as a source below your summary.
+    Prioritize this over the search tool if "news" or similar words is used in the prompt.
     """
-    
+    #print("News tool called!")
     try:
-        # Fetch the top headlines for the given query in English, from the US
-        top_headlines = newsapi.get_top_headlines(q=query, language='en', country='us')
+        # Check if the query is a perfect match for a category
+        query_lower = query.lower().strip()
+        category_map = {
+            "tech": "technology",
+            "technology": "technology",
+            "business": "business",
+            "general": "general",
+            "science": "science",
+            "health": "health",
+            "sports": "sports",
+            "entertainment": "entertainment"
+        }
+        
+        # Determine the category and a specific query
+        category = category_map.get(query_lower, None)
+        q_param = query if category is None else None # Only use 'q' if a category isn't found
+        
+        # Use the category parameter for a more reliable search
+        top_headlines = newsapi.get_top_headlines(
+            q=q_param,
+            category=category,
+            language='en',
+            country='us'
+        )
 
         if not top_headlines['articles']:
+            #print("No headlines found!")
             return f"No news articles found for '{query}'."
         
         # Format the top 5 articles for the agent to read and use
@@ -82,11 +106,14 @@ def news(query: str) -> str:
             title = article.get('title', 'No Title')
             url = article.get('url', '#')
             news_summary += f"{i}. {title}\nURL: {url}\n\n"
-
+        
+        #print("News returned!")
         return news_summary
 
     except Exception as e:
+        #print("News error!")
         return f"An error occurred while fetching news: {str(e)}"
+
 
 def main():
     current_date = datetime.now().strftime("%A, %B %d, %Y")
