@@ -1,4 +1,4 @@
-# Imports
+# --- Imports --- 
 import operator
 import os
 import uuid
@@ -23,7 +23,7 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 NEWSAPI_API_KEY = os.getenv("NEWSAPI_API_KEY")
 
 # --- Persistent Memory Setup ---
-# Use a persistent ChromaDB client to save data between runs
+
 client = chromadb.PersistentClient(path="./my_chat_memories")
 collection = client.get_or_create_collection(name="conversation_memories")
 
@@ -37,7 +37,7 @@ except FileNotFoundError:
     message_count = 0
 
 # --- Tools ---
-# Initialize the model and tools as before
+
 model = init_chat_model("anthropic:claude-3-5-haiku-latest", anthropic_api_key=CLAUDE_API_KEY)
 search = TavilySearch(max_results=2, description="A general-purpose tool for searching the web for a wide variety of information, including weather, sports scores, facts, or any query that requires real-time data not covered by other specific tools.")
 newsapi = NewsApiClient(NEWSAPI_API_KEY)
@@ -53,9 +53,9 @@ def clear_user_history():
     global client, collection, message_count
     print("Clearing all conversation history from the database...")
     try:
-        # Delete the entire collection
+        
         client.delete_collection("conversation_memories")
-        # Re-create the collection
+        
         collection = client.get_or_create_collection("conversation_memories")
         
         # Reset the global message count
@@ -218,13 +218,13 @@ def main():
             # 4. Determine the messages to send to the agent
             current_state = agent_executor.get_state(config)
             if not current_state:
-                # First message of a new in-session chat
+                # First message of a new chat
                 messages = [SystemMessage(content=system_message_content), HumanMessage(content=user_input)]
             else:
-                # All subsequent messages in a single in-session chat
+                # All subsequent messages in chat
                 messages = [HumanMessage(content=user_input)]
 
-            # ... (rest of the code for streaming the agent response) ...
+            # --- Outputting Response ---
             full_response = ""
             for chunk in agent_executor.stream(
                 {"messages": messages}, 
@@ -245,7 +245,7 @@ def main():
                 ids=[assistant_doc_id]
             )
             
-            # Increment and save the count
+            # Increment and save the count for memory ID
             message_count += 1
             with open(count_file_path, "w") as f:
                 f.write(str(message_count))
